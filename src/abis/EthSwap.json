@@ -151,7 +151,7 @@
   "sourceMap": "93:1366:0:-;;;118:47;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;214:3;195:22;;388:62;8:9:-1;5:2;;;30:1;27;20:12;5:2;388:62:0;;;;;;;;;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;388:62:0;;;;;;;;;;;;;;;;437:6;429:5;;:14;;;;;;;;;;;;;;;;;;388:62;93:1366;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;",
   "deployedSourceMap": "93:1366:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;118:47;;8:9:-1;5:2;;;30:1;27;20:12;5:2;118:47:0;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;99:1;94:3;90:11;84:18;80:1;75:3;71:11;64:39;52:2;49:1;45:10;40:15;;8:100;;;12:14;118:47:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;195:22;;8:9:-1;5:2;;;30:1;27;20:12;5:2;195:22:0;;;:::i;:::-;;;;;;;;;;;;;;;;;;;892:561;;8:9:-1;5:2;;;30:1;27;20:12;5:2;892:561:0;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;892:561:0;;;;;;;;;;;;;;;;;:::i;:::-;;456:429;;;:::i;:::-;;171:18;;8:9:-1;5:2;;;30:1;27;20:12;5:2;171:18:0;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;118:47;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;195:22::-;;;;:::o;892:561::-;1031:7;1000:5;;;;;;;;;;;:15;;;1016:10;1000:27;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1000:27:0;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;1000:27:0;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;1000:27:0;;;;;;;;;;;;;;;;:38;;992:47;;;;;;1097:16;1126:4;;1116:7;:14;;;;;;1097:33;;1219:11;1202:4;1194:21;;;:36;;1186:45;;;;;;1262:5;;;;;;;;;;;:18;;;1281:10;1301:4;1308:7;1262:54;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1262:54:0;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;1262:54:0;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;1262:54:0;;;;;;;;;;;;;;;;;1324:10;:19;;:32;1344:11;1324:32;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;1324:32:0;1393:53;1404:10;1424:5;;;;;;;;;;;1432:7;1441:4;;1393:53;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;892:561;;:::o;456:429::-;548:16;579:4;;567:9;:16;548:35;;682:11;648:5;;;;;;;;;;;:15;;;672:4;648:30;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;648:30:0;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;648:30:0;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;648:30:0;;;;;;;;;;;;;;;;:45;;640:54;;;;;;740:5;;;;;;;;;;;:14;;;755:10;767:11;740:39;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;740:39:0;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;740:39:0;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;740:39:0;;;;;;;;;;;;;;;;;816:62;832:10;852:5;;;;;;;;;;;860:11;873:4;;816:62;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;456:429;:::o;171:18::-;;;;;;;;;;;;;:::o",
   "source": "// SPDX-License-Identifier: GPL-3.0\r\n\r\npragma solidity ^0.5.0; \r\n\r\nimport \"./Token.sol\"; \r\n\r\ncontract EthSwap { \r\n\r\n  string public name = \"EthSwap Instant Exchange\"; \r\n  Token public token; \r\n  uint public rate = 100; \r\n\r\n  event TokensPurchased(address account, address token, uint amount, uint rate); \r\n  event TokensSold(address account, address token, uint amount, uint rate); \r\n\r\n  constructor(Token _token) public { \r\n    token = _token; \r\n  }\r\n\r\n  function buyTokens() public payable { \r\n\r\n    // calculate the number of tokens to buy\r\n    uint tokenAmount = msg.value * rate; \r\n\r\n    // require that EthSwap has enough tokens\r\n    require(token.balanceOf(address(this)) >= tokenAmount); \r\n\r\n    // transfer tokens to the user\r\n    token.transfer(msg.sender, tokenAmount); \r\n\r\n    // emit an event\r\n    emit TokensPurchased(msg.sender, address(token), tokenAmount, rate); \r\n  } \r\n\r\n  function sellTokens(uint _amount) public { \r\n    // user can't sell more tokens than they have\r\n    require(token.balanceOf(msg.sender) >= _amount); \r\n\r\n    // calculate the amount of Ether to redeem\r\n    uint etherAmount = _amount / rate; \r\n\r\n    // require that EthSwap has enough Ether\r\n    require(address(this).balance >= etherAmount); \r\n\r\n    // perform sale\r\n    token.transferFrom(msg.sender, address(this), _amount); \r\n    msg.sender.transfer(etherAmount); \r\n\r\n    // emit an event\r\n    emit TokensSold(msg.sender, address(token), _amount, rate); \r\n  } \r\n\r\n} \r\n",
-  "sourcePath": "C:\\Users\\vidha\\Desktop\\swap_exchange\\src\\contracts\\EthSwap.sol",
+  "sourcePath": "C:\\Users\\vidha\\Desktop\\jizzyb_ether_swap_exchange\\src\\contracts\\EthSwap.sol",
   "ast": {
     "absolutePath": "project:/src/contracts/EthSwap.sol",
     "exportedSymbols": {
@@ -4192,6 +4192,12 @@
     "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
   "networks": {
+    "4": {
+      "events": {},
+      "links": {},
+      "address": "0xd9C15359A2914b211366D90336c900305f98bcF0",
+      "transactionHash": "0xec6bbb002ea407143cabab41dd09b626e2b6f6b8b197eb893eda37795847f95d"
+    },
     "5777": {
       "events": {
         "0x6faf93231a456e552dbc9961f58d9713ee4f2e69d15f1975b050ef0911053a7b": {
@@ -4258,12 +4264,12 @@
         }
       },
       "links": {},
-      "address": "0x617eeEC1b6Eb92fFd6DDb5f103FBb7442Df92306",
-      "transactionHash": "0x49dd6631a8b2a42336ed1d59f27ff862badbcaed8af8e6f3e5db349319081abf"
+      "address": "0x1B23dC691d56899562d321d9ECd94F945F45FC16",
+      "transactionHash": "0xf0bf7a97578b51e62c50633b128c47c9415fb24db956e5d484103c50235fd824"
     }
   },
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-06-23T18:41:37.534Z",
+  "updatedAt": "2022-06-27T23:48:08.241Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
