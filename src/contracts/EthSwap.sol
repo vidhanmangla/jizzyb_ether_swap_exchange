@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
+
 pragma solidity ^0.5.0; 
 
 import "./Token.sol"; 
@@ -17,6 +18,7 @@ contract EthSwap {
     token = _token; 
   }
 
+
   function buyTokens() public payable { 
 
     // calculate the number of tokens to buy
@@ -32,7 +34,9 @@ contract EthSwap {
     emit TokensPurchased(msg.sender, address(token), tokenAmount, rate); 
   } 
 
+
   function sellTokens(uint _amount) public { 
+
     // user can't sell more tokens than they have
     require(token.balanceOf(msg.sender) >= _amount); 
 
