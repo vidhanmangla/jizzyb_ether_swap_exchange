@@ -5,6 +5,11 @@ const private_keys = [
   '3d0ca13f9358d3ee4f5755d48f7b24b8da701184f9404c14889c1833a72b002d'
 ]
 
+const private_keys_2 = [
+  '2bd57e575ec6cb1a72defc7c65d3ce9a2e3d3f8e14147bfe75677a991ccf198b',
+  '14937aa7071dc6f895b5ccd4a73e7a93c8cabef66f820c886ee6ff558a3d4527'
+]
+
 require('babel-register');
 require('babel-polyfill');
 
@@ -25,6 +30,20 @@ module.exports = {
       }),
       network_id: 4,
       gas: 5500000,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      saveDeployments: true
+    },
+
+    goerli: {
+      provider: () => new HDWalletProvider({
+        privateKeys: private_keys_2,
+        providerOrUrl: "https://goerli.infura.io/v3/e39ffda7e0e74f5abb078be42adef24d",
+        numberOfAddresses: 2
+      }),
+      network_id: 5,
+      gas: 4465030,
+      gasPrice: 10000000000,
       confirmations: 2,
       timeoutBlocks: 200,
       saveDeployments: true
